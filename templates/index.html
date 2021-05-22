@@ -1,0 +1,93 @@
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+<body>
+    <div class="container">
+        <div class="jumbotron">
+            <h1>Voice Recognition tool</h1>
+            <p>Extract text from audio</p>
+        </div>
+        <label for="audio_file">Select audio(s)</label>
+        <input class="btn btn-warning" type="file" id="audio_file" name="myfile" multiple>
+        <br>
+        <button class="searchbutton"> Search </button>
+        <br>
+        <div class="gallery"></div>
+        <hr style="width:100%;text-align:left;margin-left:0">
+        <hr style="width:100%;text-align:left;margin-left:0">
+    </div>
+</body>
+
+<script>
+    function performRecognition(){
+        var files = document.getElementById("audio_file").files
+        var formData = new FormData();
+        var endpoint = '/recognize';
+        var recognition_result = null;
+        formData.append('file', files[0])
+
+        $.ajax({
+            type: 'POST',
+            url: endpoint,
+            data: formData,
+            contentType: false,
+            cache: false,
+            processData: false,
+            async: false,
+            success: function(data) {
+                swal("Recognition Text", data.class_name);
+                recognition_result = data.class_name
+            }
+        })
+        return recognition_result;
+    }
+
+    const auth = "563492ad6f917000010000015839032eae694ff8a29cfa5aff9a7455"
+    const next = document.querySelector(".next")
+    const input = document.querySelector("input")
+    const searchbutton = document.querySelector(".searchbutton")
+
+    let pagenr = 1;
+    let search = false;
+    let query = '';
+
+
+    async function SearchPhotos(pagenr) {
+        query = performRecognition();
+        const data = await fetch(
+            `https://api.pexels.com/v1/search?query=${query}&per_page=15&page=${pagenr}`,
+            {
+                method: "GET",
+                headers: {
+                    Accept: "application/json",
+                    Authorization: auth,
+                },
+            },
+        );
+        const result = await data.json();
+        result.photos.forEach(photo => {
+            const pic = document.createElement("div");
+            pic.innerHTML = `<img src=${photo.src.large}>
+                            <p>Photo: ${photo.photographer} </p>
+                            <a href=${photo.src.large}>Download</a>
+                            `;
+
+            document.querySelector(".gallery").appendChild(pic);
+        });
+    }
+
+    searchbutton.addEventListener("click", () => {
+        if(input.value === "") return;
+        search = true;
+        SearchPhotos(pagenr);
+        pagenr++;
+    });
+
+
+<!--    next.addEventListener("click", () =>{-->
+<!--        if(!search || query.value === "") return;-->
+<!--        pagenr++;-->
+<!--        SearchPhotos(query, pagenr);-->
+<!--    });-->
+</script>
