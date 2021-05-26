@@ -16,5 +16,6 @@ def get_class_from_audio(file):
 @router.post("/recognize")
 def perform_recognition(file: UploadFile = File(...)):
     class_name = get_class_from_audio(file)
+    print(class_name)
     return {"filename": file.filename, "class_name": class_name}
     

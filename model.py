@@ -5,9 +5,11 @@ import librosa
 import numpy as np
 import torch.nn.functional as F
 
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
 class RecognitionModel:
     def __init__(self, checkpoint_path='voice_recognition_cnn.pth'):
-        ckpt = torch.load(checkpoint_path)
+        ckpt = torch.load(checkpoint_path, map_location=device)
         self.model = LitVoice()
         self.model.load_state_dict(ckpt['state_dict'])
         
