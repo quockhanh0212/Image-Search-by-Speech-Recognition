@@ -5,16 +5,23 @@ from model import RecognitionModel
 router = APIRouter(prefix="")
 model = RecognitionModel()
 
+vie2en_dict = {'can ho': 'apartment',
+               'canh sat': 'police',
+               'com': 'rice',
+               'hoc sinh': 'student',
+               'nguoi': 'human'}
+
 
 def get_class_from_audio(file):
     file_location = f"{'tmp.wav'}"
     with open(file_location, "wb+") as file_object:
         file_object.write(file.file.read())
-    class_name = model.predict([file_location])[0]
-    return class_name
+    class_name_vie = model.predict([file_location])[0]
+    class_name_en = vie2en_dict[class_name_vie]
+    return class_name_en, class_name_vie
 
 @router.post("/recognize")
 def perform_recognition(file: UploadFile = File(...)):
-    class_name = get_class_from_audio(file)
-    return {"filename": file.filename, "class_name": class_name}
-    
+    class_name_en, class_name_vie = get_class_from_audio(file)
+    return {"filename": file.filename, "class_name_en": class_name_en, "class_name_vie": class_name_vie}
+

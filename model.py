@@ -5,23 +5,29 @@ import librosa
 import numpy as np
 import torch.nn.functional as F
 
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
 class RecognitionModel:
-    def __init__(self, checkpoint_path='voice_recognition_cnn.pth'):
-        ckpt = torch.load(checkpoint_path)
+    def __init__(self, checkpoint_path='voice_recognition_cnn_tv.pth'):
+        ckpt = torch.load(checkpoint_path, map_location=device)
         self.model = LitVoice()
         self.model.load_state_dict(ckpt['state_dict'])
+
+        self.labels_str2nb = {'can ho': 0,
+                              'canh sat': 1,
+                              'com': 2,
+                              'hoc sinh': 3,
+                              'nguoi': 4}
+        self.labels_nb2str = {0: 'can ho',
+                              1: 'canh sat',
+                              2: 'com',
+                              3: 'hoc sinh',
+                              4: 'nguoi'}
         
-        self.labels_str2nb = {'bed': 0,
-                              'cat': 1,
-                              'happy': 2}
-        self.labels_nb2str = {0: 'bed',
-                              1: 'cat',
-                              2: 'happy'}
-        
-    def wav2mfcc(self, path, n_mfcc=20, max_len=11):
-        wave, sr = librosa.load(path, mono=True, sr=None)
+    def wav2mfcc(self, path, n_mfcc=20, max_len=30):
+        wave, sr = librosa.load(path, mono=True, sr=22050)
         wave = np.asfortranarray(wave[::3])
-        mfcc = librosa.feature.mfcc(wave, sr=16000, n_mfcc=n_mfcc)
+        mfcc = librosa.feature.mfcc(wave, sr=22050, n_mfcc=n_mfcc)
 
         # If maximum length exceeds mfcc lengths then pad the remaining ones
         if (max_len > mfcc.shape[1]):
@@ -47,6 +53,5 @@ class RecognitionModel:
         outs = self.model(mfccs)
         outs = F.log_softmax(outs, dim=1)
         _, preds = torch.max(outs, dim=1)
-        return self.nb_2_label(preds)
+        return _, self.nb_2_label(preds)
 
-        
