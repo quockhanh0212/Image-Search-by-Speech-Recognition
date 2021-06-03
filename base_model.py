@@ -3,26 +3,31 @@ from torch.nn import functional as F
 from torch import nn
 import pytorch_lightning as pl
 import librosa
+import numpy as np
 
 class LitVoice(pl.LightningModule):
 
-    def __init__(self, n_classes=3, lr=1e-3):
+    def __init__(self, n_classes=5, lr=1e-3):
         super().__init__()
 
-        self.conv1 = nn.Conv2d(1, 16, kernel_size=3, stride=1, padding=1)
-        self.conv2 = nn.Conv2d(16, 8, kernel_size=3, stride=1, padding=1)
-        self.linear1 = nn.Linear(8*5*2, 32)
-        self.linear2 = nn.Linear(32, n_classes)
+        self.conv1 = nn.Conv2d(1, 32, kernel_size=3, stride=1, padding=1)
+        self.conv2 = nn.Conv2d(32, 16, kernel_size=3, stride=1, padding=1)
+        self.linear1 = nn.Linear(16*5*7, 64)
+        self.linear2 = nn.Linear(64, n_classes)
         
 
         self.lr = lr
-        
-        self.labels_str2nb = {'bed': 0,
-                              'cat': 1,
-                              'happy': 2}
-        self.labels_nb2str = {0: 'bed',
-                              1: 'cat',
-                              2: 'happy'}
+
+        self.labels_str2nb = {'can ho': 0,
+                              'canh sat': 1,
+                              'com': 2,
+                              'hoc sinh': 3,
+                              'nguoi': 4}
+        self.labels_nb2str = {0: 'can ho',
+                              1: 'canh sat',
+                              2: 'com',
+                              3: 'hoc sinh',
+                              4: 'nguoi'}
 
     def forward(self, x):
 
@@ -37,7 +42,6 @@ class LitVoice(pl.LightningModule):
         x = torch.flatten(x).view(batch_size, -1)
         x = self.linear1(x)
         x = F.relu(x)
-        x = nn.Dropout(p=0.2)(x)
         x = self.linear2(x)
         
         return x
