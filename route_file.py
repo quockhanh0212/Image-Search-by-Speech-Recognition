@@ -12,12 +12,20 @@ vie2en_dict = {'can ho': 'apartment',
                'nguoi': 'human'}
 
 
+vie2vie_dict = {'can ho': 'căn hộ',
+               'canh sat': 'cảnh sát',
+               'com': 'cơm',
+               'hoc sinh': 'học sinh',
+               'nguoi': 'người'}
+
+
 def get_class_from_audio(file):
     file_location = f"{'tmp.wav'}"
     with open(file_location, "wb+") as file_object:
         file_object.write(file.file.read())
     class_name_vie = model.predict([file_location])[0]
     class_name_en = vie2en_dict[class_name_vie]
+    class_name_vie = vie2vie_dict[class_name_vie]
     return class_name_en, class_name_vie
 
 @router.post("/recognize")

@@ -12,7 +12,7 @@ class LitVoice(pl.LightningModule):
 
         self.conv1 = nn.Conv2d(1, 32, kernel_size=3, stride=1, padding=1)
         self.conv2 = nn.Conv2d(32, 16, kernel_size=3, stride=1, padding=1)
-        self.linear1 = nn.Linear(16*5*7, 64)
+        self.linear1 = nn.Linear(16*5*10, 64)
         self.linear2 = nn.Linear(64, n_classes)
         
 
@@ -46,7 +46,7 @@ class LitVoice(pl.LightningModule):
         
         return x
     
-    def wav2mfcc(self, path, n_mfcc=20, max_len=11):
+    def wav2mfcc(self, path, n_mfcc=20, max_len=40):
         wave, sr = librosa.load(path, mono=True, sr=None)
         wave = np.asfortranarray(wave[::3])
         mfcc = librosa.feature.mfcc(wave, sr=16000, n_mfcc=n_mfcc)
