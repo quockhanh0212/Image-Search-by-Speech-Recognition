@@ -8,7 +8,7 @@ Install and run the application:
 
 ```bash
 cd backend
-pip install -r requirement.txt
+pip install -r requirements.txt
 uvicorn main:app --reload
 cd ../frontend
 pip install npm
