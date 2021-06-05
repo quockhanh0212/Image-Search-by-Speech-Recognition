@@ -1,6 +1,6 @@
 # Speech2Image
 
-Speech2Image is a image search tool by speech. The application make use of Convolutional Neural Network (CNN) with Mel-frequency cepstral coefficients(MFCC) features
+Speech2Image is a image search tool by speech. The application make use of Convolutional Neural Network (CNN) with Mel-frequency cepstral coefficients (MFCC) features
 
 ## Installation
 
